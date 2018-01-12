@@ -24,12 +24,23 @@ class Histo:
         datatmp[self.nbins+1],\
         sum(datatmp[1:self.nbins])
 
+######## Printing
+
+    def __repr__(self):
+        return """Histogram: {}, {} bins in [{},{}]""".format(self.Title,self.nbins,self.xmin,self.xmax)
+
+    def __str__(self):
+        out=""
+        for l in self.Data:
+            out+="{}\n".format(l)
+        return out
+
 ######## Histogram manipulation
 
     def __add__(self,H2):
         if self.nbins==H2.nbins and self.xmin==H2.xmin and self.xmax==H2.xmax:
             H3=copy.copy(self)
-            H3.title+="+"+H2.Title
+            H3.Title+="+"+H2.Title
             H3.Underflow+=H2.Underflow
             H3.Overflow+=H2.Overflow
             H3.DataNorm+=H2.DataNorm
@@ -37,21 +48,35 @@ class Histo:
             H3.TotalWeight+=H2.TotalWeight
             H3.NEventsInHisto+=H2.NEventsInHisto
             H3.TotalWeightInHisto+=H2.TotalWeightInHisto
-            H3.Data = [sum(x) for x in zip(H3.Data,H2.data)]
+            H3.Data = [sum(x) for x in zip(H3.Data,H2.Data)]
+            return H3
+
+    def __sub__(self,H2):
+        if self.nbins==H2.nbins and self.xmin==H2.xmin and self.xmax==H2.xmax:
+            H3=copy.copy(self)
+            H3.Title+="-"+H2.Title
+            H3.Underflow-=H2.Underflow
+            H3.Overflow-=H2.Overflow
+            H3.DataNorm-=H2.DataNorm
+            H3.NEvents-=H2.NEvents
+            H3.TotalWeight-=H2.TotalWeight
+            H3.NEventsInHisto-=H2.NEventsInHisto
+            H3.TotalWeightInHisto-=H2.TotalWeightInHisto
+            H3.Data = [x-y for (x,y) in zip(H3.Data,H2.Data)]
             return H3
 
     def __mul__(self,H2):
         if self.nbins==H2.nbins and self.xmin==H2.xmin and self.xmax==H2.xmax:
             H3=copy.copy(self)
-            H3.title+="*"+H2.Title
-            H3.Underflow*=H2.Underflow
-            H3.Overflow*=H2.Overflow
+            H3.Title+="*"+H2.Title
+            H3.Underflow=-1 #This is not really useful information anymore
+            H3.Overflow=-1 #This is not really useful information anymore
             H3.DataNorm*=H2.DataNorm
             H3.NEvents*=H2.NEvents
             H3.TotalWeight*=H2.TotalWeight
             H3.NEventsInHisto*=H2.NEventsInHisto
             H3.TotalWeightInHisto*=H2.TotalWeightInHisto
-            H3.Data = [x*y for (x,y) in zip(H3.Data,H2.data)]
+            H3.Data = [x*y for (x,y) in zip(H3.Data,H2.Data)]
             return H3
 
     def __div__(self,H2):
@@ -62,14 +87,22 @@ class Histo:
             return z
         if self.nbins==H2.nbins and self.xmin==H2.xmin and self.xmax==H2.xmax:
             H3=copy.copy(self)
-            H3.title+="+"+H2.Title
-            H3.Underflow/=H2.Underflow
-            H3.Overflow/=H2.Overflow
+            H3.Title+="+"+H2.Title
+            H3.Underflow=-1 #This is not really useful information anymore
+            H3.Overflow=-1 #This is not really useful information anymore
             H3.DataNorm/=H2.DataNorm
             H3.NEvents/=H2.NEvents
             H3.TotalWeight/=H2.TotalWeight
             H3.NEventsInHisto/=H2.NEventsInHisto
             H3.TotalWeightInHisto/=H2.TotalWeightInHisto
-            y0=min([y for y in H2.data if y!=0])/10.
-            H3.Data = [x/divmax(y0,y) for (x,y) in zip(H3.Data,H2.data)]
+            y0=min([y for y in H2.Data if y!=0])/10.
+            H3.Data = [x/divmax(y0,y) for (x,y) in zip(H3.Data,H2.Data)]
             return H3
+
+    def Normalize(self):
+        H3=copy.copy(self)
+        H3.Data=[d/H3.DataNorm for d in H3.Data]
+        H3.Underflow/=H3.DataNorm
+        H3.Overflow/=H3.DataNorm
+        H3.DataNorm=1
+        return H3
