@@ -1,19 +1,75 @@
+import copy
+
 class Histo:
+######## INIT Stuff
     def __init__(self,XMLHisto):
         self.Title,self.nbins,self.xmin,self.xmax= self.parse_description(XMLHisto.find("Description").text)
         self.NEvents,self.TotalWeight,self.NEventsInHisto,self.TotalWeightInHisto=self.parse_statistics(XMLHisto.find("Statistics").text)
         self.Underflow,self.Data,self.Overflow,self.DataNorm=self.parse_data(XMLHisto.find("Data").text)
+
     def parse_description(self,DescriptionText):
         title,blah,struct=DescriptionText.strip("\n").split("\n")
         struct=[int((struct.split())[0]),float((struct.split())[1]),float((struct.split())[2])]
         struct.insert(0,title.strip("\""))
         return struct
+
     def parse_statistics(self,StatisticsText):
         textlines=StatisticsText.strip("\n").split('\n')
         return [ (x.split())[0] for x in textlines[0:4]]
+
     def parse_data(self,DataText):
         datatmp=[float((x.split())[0]) for x in DataText.strip("\n").split('\n')]
         return datatmp[0],\
         datatmp[1:self.nbins],\
         datatmp[self.nbins+1],\
         sum(datatmp[1:self.nbins])
+
+######## Histogram manipulation
+
+    def __add__(self,H2):
+        if self.nbins==H2.nbins and self.xmin==H2.xmin and self.xmax==H2.xmax:
+            H3=copy.copy(self)
+            H3.title+="+"+H2.Title
+            H3.Underflow+=H2.Underflow
+            H3.Overflow+=H2.Overflow
+            H3.DataNorm+=H2.DataNorm
+            H3.NEvents+=H2.NEvents
+            H3.TotalWeight+=H2.TotalWeight
+            H3.NEventsInHisto+=H2.NEventsInHisto
+            H3.TotalWeightInHisto+=H2.TotalWeightInHisto
+            H3.Data = [sum(x) for x in zip(H3.Data,H2.data)]
+            return H3
+
+    def __mul__(self,H2):
+        if self.nbins==H2.nbins and self.xmin==H2.xmin and self.xmax==H2.xmax:
+            H3=copy.copy(self)
+            H3.title+="*"+H2.Title
+            H3.Underflow*=H2.Underflow
+            H3.Overflow*=H2.Overflow
+            H3.DataNorm*=H2.DataNorm
+            H3.NEvents*=H2.NEvents
+            H3.TotalWeight*=H2.TotalWeight
+            H3.NEventsInHisto*=H2.NEventsInHisto
+            H3.TotalWeightInHisto*=H2.TotalWeightInHisto
+            H3.Data = [x*y for (x,y) in zip(H3.Data,H2.data)]
+            return H3
+
+    def __div__(self,H2):
+        def divmax(x,y):
+            z=max(x,y)
+            if z==x:
+                print "Warning: Replaced a zero value in the division"
+            return z
+        if self.nbins==H2.nbins and self.xmin==H2.xmin and self.xmax==H2.xmax:
+            H3=copy.copy(self)
+            H3.title+="+"+H2.Title
+            H3.Underflow/=H2.Underflow
+            H3.Overflow/=H2.Overflow
+            H3.DataNorm/=H2.DataNorm
+            H3.NEvents/=H2.NEvents
+            H3.TotalWeight/=H2.TotalWeight
+            H3.NEventsInHisto/=H2.NEventsInHisto
+            H3.TotalWeightInHisto/=H2.TotalWeightInHisto
+            y0=min([y for y in H2.data if y!=0])/10.
+            H3.Data = [x/divmax(y0,y) for (x,y) in zip(H3.Data,H2.data)]
+            return H3
