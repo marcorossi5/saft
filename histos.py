@@ -6,6 +6,7 @@ class Histo:
         self.Title,self.nbins,self.xmin,self.xmax= self.parse_description(XMLHisto.find("Description").text)
         self.NEvents,self.TotalWeight,self.NEventsInHisto,self.TotalWeightInHisto=self.parse_statistics(XMLHisto.find("Statistics").text)
         self.Underflow,self.Data,self.Overflow,self.DataNorm=self.parse_data(XMLHisto.find("Data").text)
+        self.binning()
 
     def parse_description(self,DescriptionText):
         title,blah,struct=DescriptionText.strip("\n").split("\n")
@@ -15,14 +16,18 @@ class Histo:
 
     def parse_statistics(self,StatisticsText):
         textlines=StatisticsText.strip("\n").split('\n')
-        return [ (x.split())[0] for x in textlines[0:4]]
+        return [ float((x.split())[0]) for x in textlines[0:4]]
 
     def parse_data(self,DataText):
         datatmp=[float((x.split())[0]) for x in DataText.strip("\n").split('\n')]
         return datatmp[0],\
-        datatmp[1:self.nbins],\
+        datatmp[1:self.nbins+1],\
         datatmp[self.nbins+1],\
-        sum(datatmp[1:self.nbins])
+        sum(datatmp) #Need to consider over and underflow for proper normalization
+
+    def binning(self):#Determine the left hand limit of the bins
+        self.binsize=(self.xmax-self.xmin)/self.nbins
+        self.lbins=[self.xmin+self.binsize*i for i in range(self.nbins)]#range(self.xmin,self.xmax,self.binsize)#left limit of the bins
 
 ######## Printing
 
@@ -34,6 +39,14 @@ class Histo:
         for l in self.Data:
             out+="{}\n".format(l)
         return out
+
+    def Mathematica(self):#provide an output that can make a Mathematica histogram
+        points=zip(self.lbins,self.Data)
+        spoints=["{{{},{}}}".format(str(x),str(y)) for (x,y) in points]
+        spoints=",".join(spoints)
+        mathematica_output="ListStepPlot[{{{}}}, PlotRange -> Full, PlotRangePadding -> {{None, {{1, 1}}}}, Frame -> True]".format(spoints)
+        print mathematica_output
+
 
 ######## Histogram manipulation
 
