@@ -42,10 +42,17 @@ class Histo:
 
     def Mathematica(self):#provide an output that can make a Mathematica histogram
         points=zip(self.lbins,self.Data)
-        spoints=["{{{},{}}}".format(str(x),str(y)) for (x,y) in points]
+        spoints=["{{{:f},{:f}}}".format(x,y) for (x,y) in points]
         spoints=",".join(spoints)
-        mathematica_output="ListStepPlot[{{{}}}, PlotRange -> Full, PlotRangePadding -> {{None, {{1, 1}}}}, Frame -> True]".format(spoints)
-        print mathematica_output
+        mathematica_output="ListStepPlot[{{{}}}, PlotRange -> Full, PlotRangePadding -> None, Frame -> True]".format(spoints)
+        return mathematica_output
+
+    def MathematicaList(self):#provide an output that can make a Mathematica histogram
+        points=zip(self.lbins,self.Data)
+        spoints=["{{{:f},{:f}}}".format(x,y) for (x,y) in points]
+        spoints=",".join(spoints)
+        mathematica_output="{{{}}}".format(spoints)
+        return mathematica_output
 
 
 ######## Histogram manipulation
