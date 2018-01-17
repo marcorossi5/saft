@@ -11,7 +11,7 @@ The main class is the `SAFFile` class, which represents the file as a whole.
 
 **Note:** The file is modified to have a `<SAF>...</SAF>` as a root if needed.
 
-## Histograms
+### Histograms
 
 `SAFFile` objects have an attribute called `Histos` which is a list of `Histo` objects representing the histograms defined in the SAF file:
 
