@@ -2,7 +2,14 @@
 
 This is a small library to process SAF files output by [MadAnalysis 5](https://launchpad.net/madanalysis5). It provides a representation of histograms that can then be manipulated in order to produce customized plots. It relies on the Python library `xml.etree`.
 
+
+## Note
+
+Forkerd from [here](https://github.com/ndeutschmann/saft) and turned into a
+python package.
+
 ## Features
+
 ### File importation
 
 The main class is the `SAFFile` class, which represents the file as a whole.
