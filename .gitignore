@@ -1,4 +1,5 @@
-*.saf
-._.gitignore
 *.pyc
-*.ipynb
+*.[oa]
+*~
+**/__pycache--/
+src/saft.egg-info
