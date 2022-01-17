@@ -5,26 +5,50 @@
 
 import xml.etree.ElementTree as ET
 from xml.etree.ElementInclude import default_loader
-from saft.histos import Histo
+from saft.saf_histo import SAF_Histo
 
 
-class SAFFile:
-    def __init__(self, FileName):
-        self.SourceFile = FileName
+class SAF_File:
+    """
+    The main API to read MadAnalysis5 histogram SAF files.
+    """
+
+    def __init__(self, fname):
+        """
+        Parameters
+        ----------
+            - fname: str, input file name
+        """
+        self.source_file = fname
         try:
-            self.XMLRoot = ET.XML(default_loader(FileName, ET.parse))
+            self.xml_root = ET.XML(default_loader(fname, ET.parse))
         except ET.ParseError:
-            self.AddRootSAF(self.SourceFile)
+            self.add_root_to_saf(self.source_file)
             try:
-                self.XMLRoot = ET.XML(default_loader(FileName, ET.parse))
+                self.xml_root = ET.XML(default_loader(fname, ET.parse))
             except:
-                print("Something is wrong with your file")
-        self.SampleGlobalInfo = self.XMLRoot.find("SampleGlobalInfo")
-        self.Histos = [
-            Histo(x) for x in self.XMLRoot.find("Selection").findall("Histo")
-        ]
+                raise ValueError("Something is wrong with your file")
+        self.sample_global_info = self.xml_root.find("SampleGlobalInfo")
+        self.histos = [SAF_Histo(x) for x in self.xml_root.findall("Histo")]
 
-    def AddRootSAF(self, FileName):
+    def get(self, title):
+        """
+        Returns the histogram whose title matches title (case insensitive).
+
+        Parameters
+        ----------
+            - title: str, the query title
+
+        Returns
+        -------
+            - SAF_Histo, the queried histogram. None if the histogram is not found.
+        """
+        for hist in self.histos:
+            if hist.title == title.upper():
+                return hist
+        return None
+
+    def add_root_to_saf(self, fname):
         """
         Adds a root <SAF> tag to file. Allows the file parsing through the
         ElementTree XML API.
@@ -33,9 +57,9 @@ class SAFFile:
         ----------
             - fname: str, input file name
         """
-        with open(FileName, "r") as original:
+        with open(fname, "r") as original:
             data = original.read()
-        with open(FileName, "w") as modified:
-            modified.write("<SAF>")
+        with open(fname, "w") as modified:
+            modified.write("<SAF>\n")
             modified.write(data)
             modified.write("\n</SAF>")

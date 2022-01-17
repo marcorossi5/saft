@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os
 import re
 
-requirements = []
+requirements = ["numpy"]
 
 PACKAGE = "saft"
 

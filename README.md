@@ -17,12 +17,13 @@ The main class is the `SAFFile` class, which represents the file as a whole.
 
 ### Histograms
 
-`SAFFile` objects have an attribute called `histos` which is a list of `Histo`
+`SAF_File` objects have an attribute called `histos` which is a list of `SAF_Histo`
 objects representing the histograms defined in the [saft](src/saft/saft.py) module:
 
 ```python
-mySAFFile=SAFFile("MadAnalysis5job.saf")
-h=mySAFFile.histos[0]
+from saft.saft import SAF_FILE
+saf_file = SAF_File("MadAnalysis5job.saf")
+h = saf_file.histos[0]
 ```
 
 The following attributes are the most important:
