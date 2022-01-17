@@ -128,7 +128,7 @@ class SAF_Histo:
 
         """
         h = deepcopy(self)
-        norm = h.data.sum()
+        norm = h.data.sum() + h.underflow[0] + h.overflow[0]
         h.data /= norm
         h.underflow /= norm
         h.overflow /= norm

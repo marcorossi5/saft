@@ -31,7 +31,7 @@ class SAF_File:
         self.sample_global_info = self.xml_root.find("SampleGlobalInfo")
         self.histos = [SAF_Histo(x) for x in self.xml_root.findall("Histo")]
 
-    def get(self, title):
+    def get_from_title(self, title):
         """
         Returns the histogram whose title matches title (case insensitive).
 
@@ -47,6 +47,16 @@ class SAF_File:
             if hist.title == title.upper():
                 return hist
         return None
+    
+    def get_title_list(self):
+        """
+        Returns the list of all the available histogram titles.
+
+        Returns
+        -------
+            - list, the available histogram titles
+        """
+        return [hist.title for hist in self.histos]
 
     def add_root_to_saf(self, fname):
         """
